@@ -16,7 +16,12 @@
         
         <junitVersion>4.8.2</junitVersion>
         <mockitoVersion>1.8.4</mockitoVersion>
-        <mavenAssemblyPluginVersion>2.2</mavenAssemblyPluginVersion>
+        
+        <mavenDependencyPluginVersion>2.2</mavenDependencyPluginVersion>
+        <mavenCompilerPluginVersion>2.3.2</mavenCompilerPluginVersion>
+        <mavenJarPluginVersion>2.3.1</mavenJarPluginVersion>
+        
+        <libFolderName>dep-libs</libFolderName>
     </properties>
     
     <dependencies>
@@ -51,12 +56,11 @@
     </dependencies>
     
     <build>
-        <testResources>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${mavenCompilerPluginVersion}</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -64,29 +68,44 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${mavenAssemblyPluginVersion}</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${mavenDependencyPluginVersion}</version>
                 <executions>
                     <execution>
-                        <id>create-my-bundle</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.onapp.cdn.TokenAuthGenerator</mainClass>
-                                </manifest>
-                            </archive>
-                            <finalName>token-auth-generator</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/${libFolderName}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <!-- build jar and add main class delaration to metafile -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${mavenJarPluginVersion}</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>${libFolderName}/</classpathPrefix>
+                            <mainClass>com.onapp.cdn.TokenAuthGenerator</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                        </manifestEntries>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
