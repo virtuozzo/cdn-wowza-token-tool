@@ -15,7 +15,8 @@ java -jar (<primary_key> or <backup_key>) "<security_parameters>"
 Supported Security Parameters
 -------------------------------------------
 - expire
--- UTC based expiry date in number of seconds
+-- number of seconds since Unix time(Epoch time)
+-- UTC based
 -- must not be earlier than current time
 - ref_allow
 -- referrer domain(e.g. google.com) or path(e.g. google.com/video/)
