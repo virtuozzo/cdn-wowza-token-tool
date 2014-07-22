@@ -106,11 +106,11 @@ public class TokenAuthGenerator {
     public static Object parse(String key, String value, boolean isValidate) {
         switch (key) {
             case "expire":
-                Date expire = new Date(parseLong(value));
-                if (isValidate && expire.before(new Date())) {
+                long expire = parseLong(value);
+                if (isValidate && expire <= (System.currentTimeMillis() / 1000)) {
                     throw new IllegalArgumentException("Parameter 'expire' should not be a past date");
                 }
-                return expire;
+                return new Date(expire * 1000);
             case "ref_allow":
             case "ref_deny":
                 String refs = value;

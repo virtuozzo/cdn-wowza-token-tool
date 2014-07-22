@@ -55,7 +55,7 @@ public class TokenAuthGeneratorTest {
     public void testEncryptEmptyParamValue() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Malformed key/value pair");
-        encrypt("samplekey", format("expire=%s&ref_allow=&ref_deny=Denied.com", getFutureDate()));
+        encrypt("samplekey", format("expire=%s&ref_allow=&ref_deny=Denied.com", getFutureDateInSeconds()));
     }
     
     @Test
@@ -78,11 +78,11 @@ public class TokenAuthGeneratorTest {
     
     @Test
     public void testParseSecurityParameters() {
-        long fd = getFutureDate();
+        long fd = getFutureDateInSeconds();
         Map<String, Object> rt = parseSecurityParameters(format("expire=%s&ref_allow=abc.com,*.TrustedDomain.com,&ref_deny=Denied.com", fd));
         
         assertEquals(3, rt.size());
-        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime());
+        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime() / 1000);
         List<String> refAllowList = asList((String[]) rt.get(PARAM_REF_ALLOW));
         assertEquals(2, refAllowList.size());
         assertTrue(refAllowList.contains("abc.com"));
@@ -94,11 +94,11 @@ public class TokenAuthGeneratorTest {
     
     @Test
     public void testParseSecurityParametersEndWithSymbolAnd() {
-        long fd = getFutureDate();
+        long fd = getFutureDateInSeconds();
         Map<String, Object> rt = parseSecurityParameters(format("&expire=%s&ref_allow=abc.com,*.TrustedDomain.com,&&", fd));
         
         assertEquals(2, rt.size());
-        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime());
+        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime() / 1000);
         List<String> refAllowList = asList((String[]) rt.get(PARAM_REF_ALLOW));
         assertEquals(2, refAllowList.size());
         assertTrue(refAllowList.contains("abc.com"));
@@ -110,7 +110,7 @@ public class TokenAuthGeneratorTest {
     public void testParseSecurityParametersPastExpire() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Parameter 'expire' should not be a past date");
-        long fd = new Date(new Date().getTime() - 99999).getTime();
+        long fd = new Date(new Date().getTime() - 99999).getTime() / 1000;
         parseSecurityParameters(format("&expire=%s&ref_allow=abc.com,*.TrustedDomain.com,&&", fd));
     }
     
@@ -118,16 +118,16 @@ public class TokenAuthGeneratorTest {
     public void testParseSecurityParametersSpacesBeforeAndAfterReferrer() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Referrer must not be start/end with space(s)");
-        parseSecurityParameters(format("&expire=%s&ref_allow= abc.com ,*.TrustedDomain.com,&&", getFutureDate()));
+        parseSecurityParameters(format("&expire=%s&ref_allow= abc.com ,*.TrustedDomain.com,&&", getFutureDateInSeconds()));
     }
     
     @Test
     public void testParseSecurityParametersWildcardReferrer() {
-        long fd = getFutureDate();
+        long fd = getFutureDateInSeconds();
         Map<String, Object> rt = parseSecurityParameters(format("expire=%s&ref_allow=abc.com,*.TrustedDomain.com/Folder1/,", fd));
         
         assertEquals(2, rt.size());
-        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime());
+        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime() / 1000);
         List<String> refAllowList = asList((String[]) rt.get(PARAM_REF_ALLOW));
         assertEquals(2, refAllowList.size());
         assertTrue(refAllowList.contains("abc.com"));
@@ -139,11 +139,11 @@ public class TokenAuthGeneratorTest {
     public void testParseSecurityParametersInvalidUseOfWildcard() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain");
-        parseSecurityParameters(format("expire=%s&ref_allow=abc.com,TrustedDomain.*.com,&", getFutureDate()));
+        parseSecurityParameters(format("expire=%s&ref_allow=abc.com,TrustedDomain.*.com,&", getFutureDateInSeconds()));
     }
     
-    private long getFutureDate() {
-        return new Date(new Date().getTime() + 99999).getTime();
+    private long getFutureDateInSeconds() {
+        return new Date(new Date().getTime() + (3600 * 1000)).getTime() / 1000;
     }
     
     // ======================================================
@@ -202,7 +202,7 @@ public class TokenAuthGeneratorTest {
     
     @Test
     public void testMainEncrypt() throws Exception {
-        main(new String[] { "encrypt", "samplekey", format("expire=%s&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com", getFutureDate()) });
+        main(new String[] { "encrypt", "samplekey", format("expire=%s&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com", getFutureDateInSeconds()) });
     }
     
     @Test
