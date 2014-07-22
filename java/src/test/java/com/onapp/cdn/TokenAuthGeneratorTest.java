@@ -79,7 +79,7 @@ public class TokenAuthGeneratorTest {
     @Test
     public void testParseSecurityParameters() {
         long fd = getFutureDateInSeconds();
-        Map<String, Object> rt = parseSecurityParameters(format("expire=%s&ref_allow=abc.com,*.TrustedDomain.com,&ref_deny=Denied.com", fd));
+        Map<String, Object> rt = parseSecurityParameters(format("expire=%s&ref_allow=abc.com,*.TrustedDomain.com,MISSING&ref_deny=Denied.com", fd));
         
         assertEquals(3, rt.size());
         assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime() / 1000);

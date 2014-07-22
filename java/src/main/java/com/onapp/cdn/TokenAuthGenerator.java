@@ -117,6 +117,9 @@ public class TokenAuthGenerator {
                 String[] refArr = refs.split(",");
                 List<String> refList = new ArrayList<String>();
                 for (String ref : refArr) {
+                    if (ref.equals("MISSING"))
+                        continue;
+                    
                     if (isValidate)
                         validateReferrer(ref);
                     refList.add(ref);

@@ -1,17 +1,21 @@
+-------------------------------------------
 Require
 -------------------------------------------
 - Java7
 - maven 2 or 3
 
+-------------------------------------------
 Build
 -------------------------------------------
 - mvn clean install
 - upon success of the build, you will find the jar(token-auth-generator.jar) file at the folder named 'target'
 
+-------------------------------------------
 Usage
 -------------------------------------------
 java -jar (<primary_key> or <backup_key>) "<security_parameters>"
 
+-------------------------------------------
 Supported Security Parameters
 -------------------------------------------
 - expire
@@ -31,6 +35,24 @@ Supported Security Parameters
 -- same rules to ref_allow
 -- if both ref_allow & ref_deny are specified, ref_allow will be taking precedence over ref_deny
 
+-------------------------------------------
+Allow Blank/Missing Referrer
+-------------------------------------------
+ref_allow & ref_deny can be configured to allow/deny blank or missing referrer during TokenAuth validation.
+
+The following configuration allow blank or missing referrer:
+- ref_allow=allow.com,
+- ref_allow=allow.com,MISSING
+- ref_deny=deny.com
+
+The following configuration deny blank or missing referrer:
+- ref_allow=allow.com
+- ref_deny=deny.com,
+- ref_deny=deny.com,MISSING
+
+Normally ref_allow  & ref_deny are not to be used together, but if this happened ref_allow will take precedence over ref_deny.
+
+-------------------------------------------
 Generate Token
 -------------------------------------------
 cmd:
@@ -40,6 +62,7 @@ result:
   
 Note: Then append the result to the playback URL.
 
+-------------------------------------------
 Decrypt Token
 -------------------------------------------
 cmd:
