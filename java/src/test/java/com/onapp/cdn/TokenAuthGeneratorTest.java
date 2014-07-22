@@ -8,6 +8,7 @@ import static com.onapp.cdn.TokenAuthGenerator.decrypt;
 import static com.onapp.cdn.TokenAuthGenerator.encrypt;
 import static com.onapp.cdn.TokenAuthGenerator.main;
 import static com.onapp.cdn.TokenAuthGenerator.parseSecurityParameters;
+import static com.onapp.cdn.TokenAuthGenerator.validateReferrer;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
@@ -120,8 +121,67 @@ public class TokenAuthGeneratorTest {
         parseSecurityParameters(format("&expire=%s&ref_allow= abc.com ,*.TrustedDomain.com,&&", getFutureDate()));
     }
     
+    @Test
+    public void testParseSecurityParametersWildcardReferrer() {
+        long fd = getFutureDate();
+        Map<String, Object> rt = parseSecurityParameters(format("expire=%s&ref_allow=abc.com,*.TrustedDomain.com/Folder1/,", fd));
+        
+        assertEquals(2, rt.size());
+        assertEquals(fd, ((Date) rt.get(PARAM_EXPIRE)).getTime());
+        List<String> refAllowList = asList((String[]) rt.get(PARAM_REF_ALLOW));
+        assertEquals(2, refAllowList.size());
+        assertTrue(refAllowList.contains("abc.com"));
+        assertTrue(refAllowList.contains("*.TrustedDomain.com/Folder1/"));
+        assertFalse(rt.containsKey(PARAM_REF_DENY));
+    }
+    
+    @Test
+    public void testParseSecurityParametersInvalidUseOfWildcard() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain");
+        parseSecurityParameters(format("expire=%s&ref_allow=abc.com,TrustedDomain.*.com,&", getFutureDate()));
+    }
+    
     private long getFutureDate() {
         return new Date(new Date().getTime() + 99999).getTime();
+    }
+    
+    // ======================================================
+    // validateReferrer
+    // ======================================================
+    
+    @Test
+    public void testValidateReferrer() {
+        validateReferrer("*.google.com");
+        validateReferrer("abc.google.com");
+        validateReferrer("google.com/");
+        validateReferrer("google.com/video/funny");
+        validateReferrer("google.com/video/funny/");
+        validateReferrer("google.com/video/funny.mp4");
+    }
+    
+    @Test
+    public void testValidateReferrerInvalid() {
+        try { validateReferrer(null); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer must not be blank", e.getMessage()); }
+        try { validateReferrer(""); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer must not be blank", e.getMessage()); }
+        try { validateReferrer(" *.google.com"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer must not be start/end with space(s)", e.getMessage()); }
+        try { validateReferrer("google.com "); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer must not be start/end with space(s)", e.getMessage()); }
+        try { validateReferrer("google.*.com"); }
+        catch (IllegalArgumentException e) { assertEquals("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain", e.getMessage()); }
+        try { validateReferrer("*.google.*.com"); }
+        catch (IllegalArgumentException e) { assertEquals("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain", e.getMessage()); }
+        try { validateReferrer("google.com/@($2abc/video"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer 'google.com/@*(@$2abc/video' is malformed (RFC 2396)", e.getMessage()); }
+        try { validateReferrer("?google.com"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer '?google.com' hostname is invalid(RFC 3490)", e.getMessage()); }
+        try { validateReferrer("google>.com/video"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer 'google>.com/video' hostname is invalid(RFC 3490)", e.getMessage()); }
+        try { validateReferrer("google.com:3000/video"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer must not contain port number", e.getMessage()); }
     }
     
     // ======================================================

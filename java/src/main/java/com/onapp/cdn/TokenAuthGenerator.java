@@ -1,10 +1,13 @@
 package com.onapp.cdn;
 
+import static com.google.common.net.InternetDomainName.isValid;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static org.apache.shiro.codec.Hex.decode;
 import static org.apache.shiro.util.StringUtils.hasText;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,7 +103,7 @@ public class TokenAuthGenerator {
         return map;
     }
     
-    private static Object parse(String key, String value, boolean isValidate) {
+    public static Object parse(String key, String value, boolean isValidate) {
         switch (key) {
             case "expire":
                 Date expire = new Date(parseLong(value));
@@ -114,13 +117,8 @@ public class TokenAuthGenerator {
                 String[] refArr = refs.split(",");
                 List<String> refList = new ArrayList<String>();
                 for (String ref : refArr) {
-                    if (isValidate && ref.startsWith(" ") || ref.endsWith(" "))
-                        throw new IllegalArgumentException("Referrer must not be start/end with space(s)");
-                    if (ref.contains("*")) {
-                        if (!ref.startsWith("*.") || ref.lastIndexOf("*") > 0) {
-                            throw new IllegalArgumentException("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain");
-                        }
-                    }
+                    if (isValidate)
+                        validateReferrer(ref);
                     refList.add(ref);
                 }
                 return refList.toArray(new String[0]);
@@ -129,7 +127,42 @@ public class TokenAuthGenerator {
         }
     }
     
-    private static boolean isParameterSupported(String parameterKey) {
+    public static void validateReferrer(String ref) {
+        URL url = null;
+        String temp = "http://" + ref;
+        
+        if (!hasText(ref)) {
+            throw new IllegalArgumentException("Referrer must not be blank");
+        }
+        
+        if (ref.startsWith(" ") || ref.endsWith(" "))
+            throw new IllegalArgumentException("Referrer must not be start/end with space(s)");
+        
+        if (ref.contains("*")) {
+            if (!ref.startsWith("*.") || ref.lastIndexOf("*") > 0) {
+                throw new IllegalArgumentException("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain");
+            }
+            
+            // So we can test the ref validity with URL constructor =P
+            temp = temp.replace("*", "temp");
+        }
+        
+        try {
+            url = new URL(temp);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(format("Referrer '%s' is malformed (RFC 2396)", ref));
+        }
+        
+        if (!isValid(url.getHost())) {
+            throw new IllegalArgumentException(format("Referrer '%s' hostname is invalid(RFC 3490)", ref));
+        }
+        
+        if (url.getPort() != -1) {
+            throw new IllegalArgumentException(format("Referrer must not contain port number", ref));
+        }
+    }
+    
+    public static boolean isParameterSupported(String parameterKey) {
         return SUPPORTED_PARAMS.contains(parameterKey); 
     }
     
