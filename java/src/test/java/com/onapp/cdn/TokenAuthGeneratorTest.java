@@ -174,6 +174,8 @@ public class TokenAuthGeneratorTest {
         catch (IllegalArgumentException e) { assertEquals("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain", e.getMessage()); }
         try { validateReferrer("*.google.*.com"); }
         catch (IllegalArgumentException e) { assertEquals("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain", e.getMessage()); }
+        try { validateReferrer("http://google.com/video"); }
+        catch (IllegalArgumentException e) { assertEquals("Referrer 'http://google.com/video' must not contain protocol", e.getMessage()); }
         try { validateReferrer("google.com/@($2abc/video"); }
         catch (IllegalArgumentException e) { assertEquals("Referrer 'google.com/@*(@$2abc/video' is malformed (RFC 2396)", e.getMessage()); }
         try { validateReferrer("?google.com"); }

@@ -147,6 +147,14 @@ public class TokenAuthGenerator {
             temp = temp.replace("*", "temp");
         }
         
+        // Fail if referrer contains protocol
+        try {
+            url = new URL(ref);
+            if (hasText(url.getProtocol())) {
+                throw new IllegalArgumentException(format("Referrer '%s' must not contain protocol", ref));
+            }
+        } catch (MalformedURLException e) {}
+        
         try {
             url = new URL(temp);
         } catch (MalformedURLException e) {
