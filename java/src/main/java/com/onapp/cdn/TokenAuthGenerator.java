@@ -24,7 +24,7 @@ import org.apache.shiro.crypto.PaddingScheme;
  * Tool to generate / decrypt token.
  * 
  * @author kwshoo
- * @version 20140721
+ * @version 20140722
  */
 public class TokenAuthGenerator {
     

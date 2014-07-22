@@ -12,7 +12,7 @@
     <properties>
         <shiroVersion>1.2.0</shiroVersion>
         <guavaVersion>17.0</guavaVersion>
-        <log4jVersion>1.2.17</log4jVersion>
+        <slf4jVersion>1.6.1</slf4jVersion>
         
         <junitVersion>4.8.2</junitVersion>
         <mockitoVersion>1.8.4</mockitoVersion>
@@ -31,10 +31,11 @@
             <version>${guavaVersion}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4jVersion}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4jVersion}</version>
         </dependency>
+        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
