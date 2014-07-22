@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.onapp.cdn</groupId>
+    <artifactId>token-auth-generator</artifactId>
+    <name>token-auth-generator</name>
+    <description>Generate or decrypt token</description>
+    <version>1.1</version>
+    
+    <properties>
+        <shiroVersion>1.2.0</shiroVersion>
+        <guavaVersion>17.0</guavaVersion>
+        <log4jVersion>1.2.17</log4jVersion>
+        
+        <junitVersion>4.8.2</junitVersion>
+        <mockitoVersion>1.8.4</mockitoVersion>
+        <mavenAssemblyPluginVersion>2.2</mavenAssemblyPluginVersion>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiroVersion}</version>
+            </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guavaVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4jVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junitVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockitoVersion}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <testResources>
+		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+				<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>${mavenAssemblyPluginVersion}</version>
+				<executions>
+					<execution>
+						<id>create-my-bundle</id>
+						<phase>package</phase>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>com.onapp.cdn.TokenAuthGenerator</mainClass>
+								</manifest>
+							</archive>
+							<finalName>token-auth-generator</finalName>
+		        			<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>

@@ -1,0 +1,4 @@
+2014-07-17
+==========================================
+- Fix return result for encryption to 'token=<token_value>'. Append this to the playback URL.
+-- Example: http://example.com/video/stream.mp4?token=asdasfoaofo131241o1joosppm
