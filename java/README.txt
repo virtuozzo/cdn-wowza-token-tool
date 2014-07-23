@@ -13,7 +13,7 @@ Build
 -------------------------------------------
 Usage
 -------------------------------------------
-java -jar (<primary_key> or <backup_key>) "<security_parameters>"
+java -jar token-auth-generator.jar (encrypt | decrypt) (<primary_key> | <backup_key>) "<security_parameters>"
 
 -------------------------------------------
 Supported Security Parameters
