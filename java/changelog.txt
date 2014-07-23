@@ -1,6 +1,10 @@
+2014-07-24 - version 1.2
+==========================================
+- Support Java6
+
 2014-07-22 - version 1.1
 ==========================================
-- Stricter constraints for security parameters values, for details refer to README.txt
+- Stricter constraints for security parameters(expire, ref_allow, ref_deny) values.
 
 2014-07-17 - version 1.0
 ==========================================

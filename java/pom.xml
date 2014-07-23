@@ -7,7 +7,7 @@
     <artifactId>token-auth-generator</artifactId>
     <name>token-auth-generator</name>
     <description>Generate or decrypt token</description>
-    <version>1.1</version>
+    <version>1.2</version>
     
     <properties>
         <shiroVersion>1.2.0</shiroVersion>
@@ -62,8 +62,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${mavenCompilerPluginVersion}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
             <plugin>

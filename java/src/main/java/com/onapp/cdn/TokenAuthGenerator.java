@@ -27,7 +27,7 @@ import org.apache.shiro.crypto.PaddingScheme;
  * Tool to generate / decrypt token.
  * 
  * @author kwshoo
- * @version 20140722
+ * @version 20140723
  */
 public class TokenAuthGenerator {
     
@@ -89,44 +89,43 @@ public class TokenAuthGenerator {
             String paramKey = strArray[0];
             String paramValue = strArray[1];
             
+            // Supported param keys check
+            if (!isParameterSupported(paramKey))
+                throw new UnsupportedOperationException(format("Unsupported parameter '%s'", paramKey));
+            
             // Duplication check
             if (!map.containsKey(paramKey)) {
                 map.put(paramKey, parse(paramKey, paramValue, isValidateSecurityParams));
             } else {
                 throw new IllegalArgumentException(format("Duplicate key '%s' is not allowed", strArray[0]));
             }
-            // Supported param keys check
-            if (!isParameterSupported(paramKey))
-                throw new UnsupportedOperationException(format("Unsupported parameter '%s'", paramKey));
         }
         
         return map;
     }
     
     public static Object parse(String key, String value, boolean isValidate) {
-        switch (key) {
-            case "expire":
-                long expire = parseLong(value);
-                if (isValidate && expire <= (System.currentTimeMillis() / 1000)) {
-                    throw new IllegalArgumentException("Parameter 'expire' should not be a past date");
-                }
-                return new Date(expire * 1000);
-            case "ref_allow":
-            case "ref_deny":
-                String refs = value;
-                String[] refArr = refs.split(",");
-                List<String> refList = new ArrayList<String>();
-                for (String ref : refArr) {
-                    if (ref.equals("MISSING"))
-                        continue;
-                    
-                    if (isValidate)
-                        validateReferrer(ref);
-                    refList.add(ref);
-                }
-                return refList.toArray(new String[0]);
-            default:
-                return null;
+        if (PARAM_EXPIRE.equals(key)) {
+            long expire = parseLong(value);
+            if (isValidate && expire <= (System.currentTimeMillis() / 1000)) {
+                throw new IllegalArgumentException("Parameter 'expire' should not be a past date");
+            }
+            return new Date(expire * 1000);
+        } else if (PARAM_REF_ALLOW.equals(key) || PARAM_REF_DENY.equals(key)) {
+            String refs = value;
+            String[] refArr = refs.split(",");
+            List<String> refList = new ArrayList<String>();
+            for (String ref : refArr) {
+                if (ref.equals("MISSING"))
+                    continue;
+                
+                if (isValidate)
+                    validateReferrer(ref);
+                refList.add(ref);
+            }
+            return refList.toArray(new String[0]);
+        } else {
+            throw new UnsupportedOperationException(format("Unsupported parameter '%s'", key));
         }
     }
     

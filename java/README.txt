@@ -3,7 +3,7 @@
 
 REQUIRE
 
-  Java7
+  Java 6 or 7
   maven 2 or 3
 
 
