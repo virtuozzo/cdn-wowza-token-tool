@@ -1,76 +1,81 @@
--------------------------------------------
-Require
--------------------------------------------
-- Java7
-- maven 2 or 3
+                                                                                  CDN WOWZA TOKEN TOOL
 
--------------------------------------------
-Build
--------------------------------------------
-- mvn clean install
-- upon success of the build, you will find the jar(token-auth-generator.jar) file at the folder named 'target'
 
--------------------------------------------
-Usage
--------------------------------------------
+REQUIRE
+
+  Java7
+  maven 2 or 3
+
+
+BUILD
+
+  To build, do this at /cdn-wowza-token-tool/java/
+    mvn clean install
+  
+  Upon success of the build, you will find the jar(token-auth-generator.jar) file at the folder named 'target'
+
+
+USAGE
+
 java -jar token-auth-generator.jar (encrypt | decrypt) (<primary_key> | <backup_key>) "<security_parameters>"
 
--------------------------------------------
-Supported Security Parameters
--------------------------------------------
-expire
-|- number of seconds since Unix time(Epoch time)
-|- UTC based
-|_ must not be earlier than current time
 
-ref_allow
-|- referrer domain(e.g. google.com) or path(e.g. google.com/video/)
-|- allow multiple referrers separated by comma (,) without space(s)
-|- wildcard (*) allowed only at the beginning of a referrer, e.g. *.DOMAIN
-|- do not append space at the start & end of a referrer
-|- domain must fullfill RFC 3490
-|- path must fullfill RFC 2396
-|- should not include port (e.g. google.com:3000/video)
-|_ should not include protocol(e.g. http) portion
+SECURITY PARAMETERS
 
-ref_deny
-|- same rules to ref_allow
-|_ if both ref_allow & ref_deny are specified, ref_allow will be taking precedence over ref_deny
+  expire
+    Number of seconds since Unix time(Epoch time)
+    UTC based
+    Must not be earlier than current time
 
--------------------------------------------
-Allow Blank/Missing Referrer
--------------------------------------------
-ref_allow & ref_deny can be configured to allow/deny blank or missing referrer during TokenAuth validation.
+  ref_allow
+    Referrer domain(e.g. google.com) or path(e.g. google.com/video/)
+    Allow multiple referrers separated by comma (,) without space(s)
+    Wildcard (*) allowed only at the beginning of a referrer, e.g. *.DOMAIN
+    Do not append space at the start & end of a referrer
+    Domain must fullfill RFC 3490
+    Path must fullfill RFC 2396
+    Should not include port (e.g. google.com:3000/video)
+    Should not include protocol(e.g. http) portion
 
-The following configuration allow blank or missing referrer:
-- ref_allow=allow.com,
-- ref_allow=allow.com,MISSING
-- ref_deny=deny.com
+  ref_deny
+    Same rules as in ref_allow
+    If both ref_allow & ref_deny are specified, ref_allow will be taking precedence over ref_deny
 
-The following configuration deny blank or missing referrer:
-- ref_allow=allow.com
-- ref_deny=deny.com,
-- ref_deny=deny.com,MISSING
 
-Normally ref_allow  & ref_deny are not to be used together, but if this happened ref_allow will take precedence over ref_deny.
+ALLOW BLANK / MISSING REFERRER
 
--------------------------------------------
-Generate Token
--------------------------------------------
-cmd:
-  java -jar token-auth-generator.jar encrypt samplekey "expire=1356955399&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com"
+  Both "ref_allow" & "ref_deny" could be configured to allow/deny blank or missing referrer during TokenAuth validation.
 
-result:
-  token=110ea31ac69c09a2cb7854126719f5d3c3267d24c723eea5cbd99cc4d05426ab679a57015d4e48438c97b921652daec62de3829f8ff437e27449cfdfc2f1e5d9fc47f14e91a51ea7
+  The following configuration allow blank or missing referrer:
+    ref_allow=allow.com,
+    ref_allow=allow.com,MISSING
+    ref_deny=deny.com
+
+  The following configuration deny blank or missing referrer:
+    ref_allow=allow.com
+    ref_deny=deny.com,
+    ref_deny=deny.com,MISSING
+
+  Normally ref_allow  & ref_deny are not to be used together, but if this happened ref_allow will take precedence over ref_deny.
+
+
+TO GENERATE TOKEN
+
+  Do this:
+    java -jar token-auth-generator.jar encrypt samplekey "expire=1356955399&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com"
+
+  Sample Output:
+    token=110ea31ac69c09a2cb7854126719f5d3c3267d24c723eea5cbd99cc4d05426ab679a57015d4e48438c97b921652daec62de3829f8ff437e27449cfdfc2f1e5d9fc47f14e91a51ea7
   
-Note: Then append the result to the playback URL.
+  Note: 
+    Then append the result to the playback URL.
 
--------------------------------------------
-Decrypt Token
--------------------------------------------
-cmd:
-  java -jar token-auth-generator.jar decrypt samplekey 110ea31ac69c09a2cb7854126719f5d3c3267d24c723eea5cbd99cc4d05426ab679a57015d4e48438c97b921652daec62de3829f8ff437e27449cfdfc2f1e5d9fc47f14e91a51ea7
 
-result:
-  security parameters=expire=1356955399&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com
+TO DECRYPT TOKEN
+
+  Do this:
+    java -jar token-auth-generator.jar decrypt samplekey 110ea31ac69c09a2cb7854126719f5d3c3267d24c723eea5cbd99cc4d05426ab679a57015d4e48438c97b921652daec62de3829f8ff437e27449cfdfc2f1e5d9fc47f14e91a51ea7
+
+  Sample Output:
+    security parameters=expire=1356955399&ref_allow=*.TrustedDomain.com&ref_deny=Denied.com
 
