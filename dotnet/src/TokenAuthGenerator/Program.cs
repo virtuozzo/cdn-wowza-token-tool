@@ -93,9 +93,9 @@ namespace com.onapp.cdn
         {
             if(key == PARAM_EXPIRE)
             {
-                long expire = long.parse(value);
+                long expire = long.Parse(value);
 
-                if(isValidate && expire <= ToUnixTime(System.DateTime.UtcNow)
+                if(isValidate && expire <= ToUnixTime(System.DateTime.UtcNow))
                 {
                     throw new ArgumentException("Parameter 'expire' should not be past date");
                 }
@@ -112,17 +112,17 @@ namespace com.onapp.cdn
         private static long ToUnixTime(DateTime dateTime)
         {
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
+            return Convert.ToInt64((dateTime - epoch).TotalSeconds);
         }
 
-        private static void ValidateReferrer(string ref)
+        private static void ValidateReferrer(string referrer)
         {
-            if(String.IsNullOrEmpty(ref))
+            if(String.IsNullOrEmpty(referrer))
             {
                 throw new ArgumentException("Referrer must not be blank");
             }
 
-            if(ref.StartsWith(" ") || ref.EndsWith(" "))
+            if(referrer.StartsWith(" ") || referrer.EndsWith(" "))
             {
                 throw new ArgumentException("Referrer must not start/end with space(s)");
             }
