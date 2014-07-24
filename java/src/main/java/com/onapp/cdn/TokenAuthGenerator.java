@@ -3,12 +3,14 @@ package com.onapp.cdn;
 import static com.google.common.net.InternetDomainName.isValid;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.util.TimeZone.getTimeZone;
 import static org.apache.shiro.codec.Hex.decode;
 import static org.apache.shiro.util.StringUtils.hasText;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,8 +109,12 @@ public class TokenAuthGenerator {
     public static Object parse(String key, String value, boolean isValidate) {
         if (PARAM_EXPIRE.equals(key)) {
             long expire = parseLong(value);
-            if (isValidate && expire <= (System.currentTimeMillis() / 1000)) {
-                throw new IllegalArgumentException("Parameter 'expire' should not be a past date");
+            if (isValidate) {
+                Calendar _expire = Calendar.getInstance(getTimeZone("UTC"));
+                _expire.setTimeInMillis(expire * 1000);
+                Calendar _now = Calendar.getInstance(getTimeZone("UTC"));
+                if (_now.after(_expire))
+                    throw new IllegalArgumentException("Parameter 'expire' should not be a past date");
             }
             return new Date(expire * 1000);
         } else if (PARAM_REF_ALLOW.equals(key) || PARAM_REF_DENY.equals(key)) {
