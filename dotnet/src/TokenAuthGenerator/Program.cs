@@ -11,7 +11,10 @@ namespace com.onapp.cdn
 {
     class Program
     {
-        private static readonly List<string> SUPPORTED_PARAM = new List<string>() { "expire", "ref_allow", "ref_deny" };
+        private const string PARAM_EXPIRE = "expire";
+        private const string PARAM_REF_ALLOW = "ref_allow";
+        private const string PARAM_REF_DENY = "ref_deny";
+        private static readonly List<string> SUPPORTED_PARAM = new List<string>() { PARAM_EXPIRE, PARAM_REF_ALLOW, PARAM_REF_DENY };
         
         private static Encoding encoding = Encoding.UTF8;
         private static IBlockCipher cipherEngine = new BlowfishEngine();
@@ -32,13 +35,13 @@ namespace com.onapp.cdn
 
         private static string Encrypt(string key, string parameters)
         {
-            ValidateSecurityParameters(parameters);
+            ParseSecurityParameters(parameters, true);
             return Cipher(true, encoding.GetBytes(key), encoding.GetBytes(parameters));
         }
 
-        private static string Decrypt(string key, string parameters)
+        private static string Decrypt(string key, string encryptedStr)
         {
-            return Cipher(false, encoding.GetBytes(key), StringToByteArray(parameters));
+            return Cipher(false, encoding.GetBytes(key), StringToByteArray(encryptedStr));
         }
 
         private static byte[] StringToByteArray(string hexString)
@@ -54,7 +57,7 @@ namespace com.onapp.cdn
             return buffer;
         }
 
-        private static void ValidateSecurityParameters(string parameters)
+        private static void ParseSecurityParameters(string parameters, bool isValidateSecurityParams)
         {
             if (String.IsNullOrEmpty(parameters))
                 throw new ArgumentException("Parameters must not be empty");
@@ -73,6 +76,7 @@ namespace com.onapp.cdn
 
                 if (!param_keys.Contains(paramKey))
                 {
+                    Parse(paramKey, paramValue, isValidateSecurityParams);
                     param_keys.Add(paramKey);
                 }
                 else
@@ -81,8 +85,48 @@ namespace com.onapp.cdn
                 }
 
                 if(!SUPPORTED_PARAM.Contains(paramKey))
-                    throw new ArgumentException(String.Format("Unsupported parameter  '{0}'", paramKey));
+                    throw new ArgumentException(String.Format("Unsupported parameter '{0}'", paramKey));
             }
+        }
+
+        private static void Parse(string key, string value, bool isValidate)
+        {
+            if(key == PARAM_EXPIRE)
+            {
+                long expire = long.parse(value);
+
+                if(isValidate && expire <= ToUnixTime(System.DateTime.UtcNow)
+                {
+                    throw new ArgumentException("Parameter 'expire' should not be past date");
+                }
+            }
+            else if(key == PARAM_REF_ALLOW || key == PARAM_REF_DENY)
+            {
+            }
+            else
+            {
+                throw new ArgumentException(String.Format("Unsupported parameter '{0}'", key));
+            }
+        }
+
+        private static long ToUnixTime(DateTime dateTime)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return Convert.ToInt64((date - epoch).TotalSeconds);
+        }
+
+        private static void ValidateReferrer(string ref)
+        {
+            if(String.IsNullOrEmpty(ref))
+            {
+                throw new ArgumentException("Referrer must not be blank");
+            }
+
+            if(ref.StartsWith(" ") || ref.EndsWith(" "))
+            {
+                throw new ArgumentException("Referrer must not start/end with space(s)");
+            }
+
         }
 
         static void Main(string[] args)
