@@ -127,6 +127,14 @@ namespace com.onapp.cdn
                 throw new ArgumentException("Referrer must not start/end with space(s)");
             }
 
+            if(referrer.Contains("*"))
+            {
+                if(!referrer.StartsWith("*.") || referrer.LastIndexOf("*") > 0)
+                {
+                    throw new ArgumentException("Wildcard usage(*.DOMAIN) for referrer must exist only at the beginning of a domain");
+                }
+            }
+
         }
 
         static void Main(string[] args)
