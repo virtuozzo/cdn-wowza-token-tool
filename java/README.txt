@@ -17,7 +17,7 @@ BUILD
 
 USAGE
 
-java -jar token-auth-generator.jar (encrypt | decrypt) (<primary_key> | <backup_key>) "<security_parameters>"
+  java -jar token-auth-generator.jar (encrypt | decrypt) (<primary_key> | <backup_key>) "<security_parameters>"
 
 
 SECURITY PARAMETERS
